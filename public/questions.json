@@ -1,0 +1,471 @@
+[
+  {
+    "id": 1,
+    "category": "バージョン管理",
+    "term": "SVN（Subversion）",
+    "explanation": "Apacheが提供する中央集権型バージョン管理システム。1つの中央リポジトリをみんなで共有する。Gitと違い、オフラインでの履歴確認や分岐が困難。かつてのデファクトスタンダードだったがGitに置き換えられた。",
+    "contributor": "山崎"
+  },
+  {
+    "id": 2,
+    "category": "セキュリティ・OS",
+    "term": "パーミッション（permission）",
+    "explanation": "ファイルやディレクトリへのアクセス権限。読み取り(r)・書き込み(w)・実行(x)の3種類があり、所有者・グループ・その他で個別に設定する。Linuxでは「chmod 755」のように数値で表す。",
+    "contributor": "山崎"
+  },
+  {
+    "id": 3,
+    "category": "プログラミング",
+    "term": "グリーンスレッド",
+    "explanation": "OSではなくランタイム（JVMなど）が管理する仮想スレッド。OSスレッドより軽量で大量生成できるが、OSのマルチコアを直接活かせない場合がある。Javaの初期実装で使われた。近年はGoのgoroutineや Java21のVirtual ThreadsとしてM:Nモデルで復活している。",
+    "contributor": "山崎"
+  },
+  {
+    "id": 4,
+    "category": "ネットワーク",
+    "term": "レイテンシ（Latency）",
+    "explanation": "データを送信してから相手に届くまでの遅延時間。「応答速度の遅さ」を表す指標で低いほど良い。ネットワーク・ストレージ・DBなど様々な場面で使う。スループット（単位時間当たりの転送量）とは別概念。",
+    "contributor": "山崎"
+  },
+  {
+    "id": 5,
+    "category": "ネットワーク",
+    "term": "サブネットマスク",
+    "explanation": "IPアドレスのネットワーク部とホスト部を区別するための数値。例：255.255.255.0。IPアドレスとAND演算することでネットワークアドレスを導く。CIDRの /24 表記と対応する。",
+    "contributor": "山崎"
+  },
+  {
+    "id": 6,
+    "category": "ネットワーク",
+    "term": "CIDR（サイダー）",
+    "explanation": "Classless Inter-Domain Routing。IPアドレスのネットワーク範囲を「192.168.1.0/24」のようにスラッシュ以下のビット数で表す記法。/24は上位24ビットがネットワーク部 = 254台接続可能。",
+    "contributor": "山崎"
+  },
+  {
+    "id": 7,
+    "category": "データベース",
+    "term": "ANSI SQL",
+    "explanation": "米国国家規格協会（ANSI）が策定したSQL標準仕様。SELECT・INSERT・UPDATE・DELETEなどの基本文法はこの標準に基づく。MySQL・PostgreSQL・Oracle等はANSI SQLをベースに独自拡張している。",
+    "contributor": "根來"
+  },
+  {
+    "id": 8,
+    "category": "データベース",
+    "term": "dbt（Data Build Tool）",
+    "explanation": "SQL変換ロジックをコードとして管理するデータ変換ツール。GitやCI/CDとの連携ができ、データパイプラインをソフトウェア開発と同じ品質管理で扱える。モダンデータスタック（MDS）の中核ツール。",
+    "contributor": "根來"
+  },
+  {
+    "id": 9,
+    "category": "データベース",
+    "term": "BIツール（Business Intelligence Tool）",
+    "explanation": "データを可視化・分析するためのソフトウェア。TableauやPower BI・Lookerなどが代表例。グラフ・ダッシュボードを通じて経営判断を支援する。SQLを書かずにドラッグ&ドロップで分析できるものも多い。",
+    "contributor": "根來"
+  },
+  {
+    "id": 10,
+    "category": "データベース",
+    "term": "DWH（データウェアハウス）",
+    "explanation": "Data Warehouse。大量のデータを分析目的で蓄積・整理するデータ倉庫。日々の業務DBとは別に「分析専用」のDBを持つ。RedshiftやBigQueryやSnowflakeが代表例。OLTPとは対照的なOLAPシステム。",
+    "contributor": "根來"
+  },
+  {
+    "id": 11,
+    "category": "データベース",
+    "term": "ER図（Entity Relationship Diagram）",
+    "explanation": "データベース設計でテーブル間の関係を視覚的に表した設計図。エンティティ（テーブル）と関連（リレーション）の多重度（1対多・多対多など）を図示する。DB設計の基本ドキュメント。",
+    "contributor": "根來"
+  },
+  {
+    "id": 12,
+    "category": "データベース",
+    "term": "ストアドプロシージャ",
+    "explanation": "DBサーバー側に保存・実行される一連のSQL手続き。複雑なSQLを毎回送信するのではなく、事前に登録した手続きを呼び出すだけにできる。パフォーマンス向上やSQLインジェクション対策にもなる。",
+    "contributor": "根來"
+  },
+  {
+    "id": 13,
+    "category": "データベース",
+    "term": "スキーマ（Schema）",
+    "explanation": "DBの構造定義（テーブル・列・型・制約など）の総称。またはPostgreSQLなどでのネームスペース（名前空間）として使われることも。「このスキーマを変更する」= テーブル構造を変更すること。",
+    "contributor": "根來・表野"
+  },
+  {
+    "id": 14,
+    "category": "AI・最新技術",
+    "term": "MCP（Model Context Protocol）",
+    "explanation": "Anthropicが策定したAIエージェントと外部ツール・サービスを標準的に連携させるプロトコル。MCPサーバーを作ることでAIに検索・DB操作・ファイル読み書きなどの能力を追加できる。AIのUSBポートのような概念。",
+    "contributor": "根來"
+  },
+  {
+    "id": 15,
+    "category": "セキュリティ・OS",
+    "term": "FDE（Full Disk Encryption）",
+    "explanation": "Full Disk Encryption。PCやストレージ全体を暗号化する技術。PCを盗まれてもデータが読み取られないように保護する。WindowsのBitLockerやMacのFileVaultが代表例。紛失・盗難対策として重要。",
+    "contributor": "根來"
+  },
+  {
+    "id": 16,
+    "category": "AI・最新技術",
+    "term": "grill-me",
+    "explanation": "AIに要件を深掘り・整理させる手法。「grill me on this」= 私にこのテーマで質問攻めにして、という意味。AIが矢継ぎ早に質問することで、要件の抜け漏れや矛盾を引き出す。プロダクト開発・設計の場面で有効。",
+    "contributor": "根來"
+  },
+  {
+    "id": 17,
+    "category": "プログラミング",
+    "term": "バッチ処理（Batch Processing）",
+    "explanation": "大量のデータをまとめて一括処理する方式。「夜間バッチ」= 深夜に売上集計や帳票出力などをまとめて実行すること。リアルタイム処理の対義語。定時・大量・自動という特徴がある。",
+    "contributor": "根來・表野"
+  },
+  {
+    "id": 18,
+    "category": "プログラミング",
+    "term": "Linter（リンター）",
+    "explanation": "ソースコードを静的解析してバグ・スタイル違反・規約違反を自動チェックするツール。JavaScriptのESLint・PythonのFlake8・JavaのCheckstyleが代表例。コードレビュー前の品質チェックとして使う。",
+    "contributor": "根來"
+  },
+  {
+    "id": 19,
+    "category": "プログラミング",
+    "term": "バリデーション（Validation）",
+    "explanation": "入力データが正しい形式・値かを検証すること。必須チェック・型チェック・桁数チェック・範囲チェックなど。フロントエンドとバックエンド両方でやることでセキュリティと利便性を両立する。",
+    "contributor": "根來"
+  },
+  {
+    "id": 20,
+    "category": "インフラ・OS",
+    "term": "cron（クーロン）/ スケジューラー",
+    "explanation": "Unix/Linuxの定時実行の仕組み。「0 0 * * *」のような5つの数値で「分・時・日・月・曜日」を指定してコマンドを自動実行できる。毎日0時に実行・毎週月曜9時に実行など。WindowsのタスクスケジューラーもUIが違うが同概念。",
+    "contributor": "根來"
+  },
+  {
+    "id": 21,
+    "category": "プログラミング",
+    "term": "リファクタリング（Refactoring）",
+    "explanation": "外部から見た動作・仕様を変えずにコードの内部構造を改善すること。変数名の改善・関数の分割・重複削除など。技術的負債を返済する活動。「動く汚いコード」を「動く綺麗なコード」にする。",
+    "contributor": "根來"
+  },
+  {
+    "id": 22,
+    "category": "インフラ・OS",
+    "term": "WSL（Windows Subsystem for Linux）",
+    "explanation": "Microsoft提供のWindows上でLinuxを動かす仕組み。仮想マシンなしにWindowsから直接Linuxコマンドが使える。WSL2はLinuxカーネルを内蔵しDockerとの相性も良い。Windows開発者の必需品になっている。",
+    "contributor": "根來・梶原"
+  },
+  {
+    "id": 23,
+    "category": "インフラ・OS",
+    "term": "SSH（Secure Shell）",
+    "explanation": "暗号化された通信でリモートサーバーに安全に接続するプロトコル（port 22）。パスワード認証より公開鍵認証が推奨される。ターミナルからサーバー操作・ファイル転送(SCP/SFTP)などに使う。",
+    "contributor": "根來"
+  },
+  {
+    "id": 24,
+    "category": "インフラ・OS",
+    "term": "キャッシュ（Cache）",
+    "explanation": "高速アクセスのために計算済み・取得済みのデータを一時保存しておく仕組み。再計算・再取得を省いて高速化する。ブラウザキャッシュ・CDNキャッシュ・DBクエリキャッシュなど様々なレイヤーに存在する。",
+    "contributor": "根來"
+  },
+  {
+    "id": 25,
+    "category": "インフラ・OS",
+    "term": "パス（Path）/ 絶対パス・相対パス",
+    "explanation": "ファイルやディレクトリの場所を示す文字列。絶対パスはルートからの完全なパス（/home/user/file.txt）。相対パスは現在位置を基準とした相対的なパス（../docs/file.txt）。cd・ls・importなどで使う。",
+    "contributor": "根來"
+  },
+  {
+    "id": 26,
+    "category": "プログラミング",
+    "term": "スクリプト（Script）",
+    "explanation": "一連の処理を自動実行するためのコード・コマンド列を書いたファイル。コンパイル不要でインタープリタが直接実行する。シェルスクリプト・Pythonスクリプト・JavaScriptなど。繰り返し作業を自動化するために書く。",
+    "contributor": "根來"
+  },
+  {
+    "id": 27,
+    "category": "インフラ・OS",
+    "term": "YAML（ヤムル）",
+    "explanation": "設定ファイルや定義ファイルによく使われるデータ記述形式。インデント（字下げ）で階層を表す。JSONより人間に読みやすい。DockerのCompose・KubernetesのManifest・GitHub ActionsのWorkflowなどで広く使われる。",
+    "contributor": "根來"
+  },
+  {
+    "id": 28,
+    "category": "インフラ・OS",
+    "term": "CMD / コマンドプロンプト",
+    "explanation": "Windowsのコマンドラインインターフェース。テキストコマンドでOSを操作する画面。「ipconfig」「ping」「dir」などのコマンドを実行できる。PowerShellが後継として普及しているが現在も健在。",
+    "contributor": "根來"
+  },
+  {
+    "id": 29,
+    "category": "セキュリティ・OS",
+    "term": "マスキング（Masking）",
+    "explanation": "個人情報・機密データを「***」や「XXX」などで置き換えて非表示にすること。ログに個人情報が出ないよう処理したり、画面表示でパスワードを●●●にするなど。GDPRや個人情報保護法への対応に重要。",
+    "contributor": "根來"
+  },
+  {
+    "id": 30,
+    "category": "プログラミング・テスト",
+    "term": "モック（Mock）",
+    "explanation": "テスト時に本物のオブジェクト・サービスの代わりに使う偽物。例：DBや外部APIの代わりに固定値を返す偽実装。外部依存を排除して高速・安定したテストを実現する。Mockito（Java）などのライブラリで作成できる。",
+    "contributor": "田中"
+  },
+  {
+    "id": 31,
+    "category": "プログラミング・テスト",
+    "term": "JUnit",
+    "explanation": "Javaのユニットテストフレームワーク。@Test・assertEquals・@Beforeなどのアノテーションでテストコードを書く。TDD（テスト駆動開発）の基盤ツール。JUnit5が現在の最新バージョン。",
+    "contributor": "田中"
+  },
+  {
+    "id": 32,
+    "category": "セキュリティ・OS",
+    "term": "暗号化とハッシュ化の違い",
+    "explanation": "暗号化は鍵があれば元データに戻せる（可逆）。ハッシュ化は一方向で元には戻せない（不可逆）。パスワード保存にはハッシュ（bcryptやSHA-256）を使うのが正解。暗号化でパスワードを保存するのはNG。",
+    "contributor": "田中"
+  },
+  {
+    "id": 33,
+    "category": "ビジネス・組織",
+    "term": "オフショア開発",
+    "explanation": "海外（主にインド・ベトナム・中国など賃金が安い国）に開発を委託する形態。コスト削減が主目的。時差・言語・文化の壁があるためコミュニケーションコストが課題。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 34,
+    "category": "ビジネス・組織",
+    "term": "ニアショア開発",
+    "explanation": "同じ国の地方都市（首都圏から見て地方）に開発を委託する形態。オフショアほどではないがコスト削減でき、時差・言語の問題がない。沖縄・北海道・徳島などIT産業を誘致している地域も多い。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 35,
+    "category": "インフラ・OS",
+    "term": "オンプレミス（On-Premises）",
+    "explanation": "自社でサーバーや機器を購入・設置・管理する形態。略して「オンプレ」。クラウドの対義語。初期コストが大きいが、セキュリティ要件が厳しい場合や長期的にはコストが有利なことも。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 36,
+    "category": "インフラ・OS",
+    "term": "クラウド（Cloud）",
+    "explanation": "インターネット経由でサーバー・ストレージ・DBなどをサービスとして利用する形態。AWS・Azure・GCPが3大クラウド。初期コストなく必要な分だけ使える従量課金が特徴。IaaS・PaaS・SaaSの3層に分類される。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 37,
+    "category": "インフラ・OS",
+    "term": "サーバーレス（Serverless）",
+    "explanation": "サーバーの管理・スケーリングをクラウドに任せ、コードだけ書けば動く形態。AWS LambdaやCloud Functionsが代表例。「サーバーがない」わけではなく「管理が不要」という意味。使った時間だけ課金される。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 38,
+    "category": "アーキテクチャ",
+    "term": "マイクロサービス（Microservices）",
+    "explanation": "大きなアプリを小さな独立したサービスに分割する設計手法。各サービスは別言語・別DBを持てる。障害の影響範囲が限定され、個別にスケールできる。モノリス（一枚岩）の対義語。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 39,
+    "category": "データベース",
+    "term": "マスタデータ（Master Data）",
+    "explanation": "変化の少ない基本・参照データを格納するテーブルの総称。商品マスタ・顧客マスタ・コードマスタなど。業務処理で発生するトランザクションデータと対をなす概念。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 40,
+    "category": "データベース",
+    "term": "トランザクション（Transaction）",
+    "explanation": "一連の処理をひとまとまりとして扱う概念。「銀行振込」なら残高減額と入金を1つのトランザクションとして原子的に実行する。ACID特性（Atomicity・Consistency・Isolation・Durability）が保証される。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 41,
+    "category": "インフラ・OS",
+    "term": "コンテナ技術（Container）",
+    "explanation": "アプリとその実行環境をひとまとめにしてパッケージ化する仮想化技術。VM（仮想マシン）より軽量で起動が速い。Dockerが最も普及しており、複数コンテナの管理にはKubernetesを使う。",
+    "contributor": "梶原・表野"
+  },
+  {
+    "id": 42,
+    "category": "インターフェース",
+    "term": "CUI（Character User Interface）",
+    "explanation": "キーボードで文字コマンドを入力して操作するインターフェース。ターミナル・コマンドプロンプトがCUI。習得コストは高いが作業の自動化・効率化がしやすい。GUIの対義語。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 43,
+    "category": "インターフェース",
+    "term": "GUI（Graphical User Interface）",
+    "explanation": "マウスやタッチでグラフィカルに操作するインターフェース。Windows・macOSのデスクトップ・スマホの画面がGUI。直感的で使いやすいがバッチ処理・自動化には不向き。CUIの対義語。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 44,
+    "category": "アーキテクチャ",
+    "term": "API（Application Programming Interface）",
+    "explanation": "異なるソフトウェア同士が通信するための窓口・接点。「天気APIを叩く」= 天気サービスが提供するAPIにリクエストを送って天気データを取得する。Web APIではHTTPでJSONをやり取りするRESTが一般的。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 45,
+    "category": "インターフェース",
+    "term": "UI（User Interface）/ UX（User Experience）",
+    "explanation": "UIはユーザーとシステムの接点（見た目・ボタン・フォームなど）。UXはユーザーが製品を使う全体的な体験・満足度。「UIが良くてもUXが悪い」= 見た目は良いが使いにくいという状態。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 46,
+    "category": "プログラミング",
+    "term": "DI（Dependency Injection）依存性注入",
+    "explanation": "オブジェクトが必要とする依存関係を外部から注入する設計パターン。クラス内でnewするのでなく外からインスタンスを渡す。テストのしやすさ・柔軟性が向上する。SpringFrameworkのコア概念。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 47,
+    "category": "開発プロセス",
+    "term": "CI/CD（継続的インテグレーション/デリバリー）",
+    "explanation": "CI（Continuous Integration）= コード変更を頻繁に統合して自動テストするプラクティス。CD（Continuous Delivery/Deployment）= テスト通過後に自動でデプロイするプラクティス。GitHub Actions・Jenkins・CircleCIなどのツールで実現。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 48,
+    "category": "バージョン管理",
+    "term": "Git",
+    "explanation": "Linus Torvaldsが作った分散型バージョン管理システム。コードの変更履歴をローカルでも管理でき、ブランチで並行作業・マージで統合ができる。GitHubはGitのリポジトリをクラウドで管理するサービス。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 49,
+    "category": "ビジネス・組織",
+    "term": "オープン系システム",
+    "explanation": "オープンな標準技術（Linux・Java・MySQL等）を使って構築したシステム。特定ベンダーへの依存度が低く、汎用的なハードウェアで動く。汎用機（メインフレーム）・レガシーシステムの対義語として使われる。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 50,
+    "category": "ビジネス・組織",
+    "term": "モダナイゼーション / DX移行",
+    "explanation": "古いレガシーシステム（COBOLや独自ハード等）を最新技術・クラウドに刷新すること。「2025年の崖」問題（経産省）が示すように日本企業の多くが課題としている。マイグレーションとも言う。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 51,
+    "category": "データベース",
+    "term": "マイグレーション（Migration）",
+    "explanation": "①データやシステムを別の環境・形式に移行すること。②DBスキーマの変更（テーブル追加・カラム追加など）をコードとして管理する手法。FlywayやLiquibase・Railsのmigrationなどのツールで履歴管理できる。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 52,
+    "category": "ビジネス・組織",
+    "term": "ノーコード / ローコード",
+    "explanation": "ノーコード：プログラムを一切書かずにアプリを作れるツール（Bubble・Notion等）。ローコード：最小限のコードでアプリを作れるツール（PowerApps・OutSystems等）。開発者不足の解決策として注目されている。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 53,
+    "category": "インフラ・OS",
+    "term": "レプリケーション（Replication）",
+    "explanation": "データを複数サーバーにリアルタイムで複製・同期すること。マスター（書き込み）→スレーブ（読み取り）の構成で負荷分散・冗長化を実現する。DBだけでなくファイルシステムやサーバー自体のレプリケーションもある。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 54,
+    "category": "インフラ・OS",
+    "term": "ロードバランサ（Load Balancer）",
+    "explanation": "複数のサーバーへのリクエストを均等に分散させる装置またはソフトウェア。1台に集中するのを防ぎ、サーバーが落ちても他のサーバーが引き継げる。AWS ALB・Nginx・HAProxyが代表例。",
+    "contributor": "梶原"
+  },
+  {
+    "id": 55,
+    "category": "Java・フレームワーク",
+    "term": "Jakarta EE（ジャカルタEE）",
+    "explanation": "Javaのエンタープライズ向け標準仕様群。旧Java EE（J2EE）から改名。Servlet・JPA・JAX-RS・CDI等の仕様を含む。Spring Frameworkの多くはこの仕様をベースにしている。",
+    "contributor": "福崎"
+  },
+  {
+    "id": 56,
+    "category": "Java・フレームワーク",
+    "term": "Struts（アパッチストラッツ）",
+    "explanation": "JavaのMVC Webフレームワーク（Apache Struts）。2000年代に多くの企業システムで使われた。現在はSpring MVCに置き換えが進んでいる。Struts2には過去に重大なRCE脆弱性（CVE-2017-5638）も発覚している。",
+    "contributor": "福崎"
+  },
+  {
+    "id": 57,
+    "category": "アーキテクチャ",
+    "term": "MVCモデル（Model-View-Controller）",
+    "explanation": "アプリをModel（データ・ビジネスロジック）・View（画面表示）・Controller（入力処理・Model-View仲介）の3層に分離する設計パターン。変更箇所を局所化して保守性を高める。Spring MVC・Rails・Laravelなどで採用。",
+    "contributor": "福崎"
+  },
+  {
+    "id": 58,
+    "category": "Web・通信",
+    "term": "Cookie（クッキー）",
+    "explanation": "Webブラウザにデータを保存する仕組み。サーバーがSet-Cookieヘッダーでブラウザにデータをセットしてもらい、以降のリクエストに自動付与される。ログイン状態の保持・セッション管理・トラッキングに使う。",
+    "contributor": "表野"
+  },
+  {
+    "id": 59,
+    "category": "Web・通信",
+    "term": "ストリーミング（Streaming）",
+    "explanation": "データを受信しながらリアルタイムで再生・処理する方式。全部ダウンロードしてから再生するのでなく、来た分から随時処理する。YouTube・NetflixやAI（LLM）のトークンごとの逐次出力もストリーミング。",
+    "contributor": "表野"
+  },
+  {
+    "id": 60,
+    "category": "インフラ・OS",
+    "term": "Docker（ドッカー）",
+    "explanation": "コンテナ型仮想化プラットフォーム。アプリとOS依存ライブラリを含むイメージを作り、どこでも同じ環境で実行できる。「自分のPCでは動くのに本番で動かない」問題を解消する。docker-composeで複数コンテナを管理。",
+    "contributor": "表野"
+  },
+  {
+    "id": 61,
+    "category": "セキュリティ・OS",
+    "term": "JWT（JSON Web Token）",
+    "explanation": "認証情報をJSON形式でエンコードしたトークン。ヘッダー・ペイロード・署名の3部をBase64でつないだ文字列。署名で改ざんを検証できる。ステートレスな認証（サーバーにセッション不要）に使われる。",
+    "contributor": "表野"
+  },
+  {
+    "id": 62,
+    "category": "インフラ・OS",
+    "term": "ジョブ / JP1",
+    "explanation": "ジョブ：バッチ処理の実行単位。複数ジョブをつないだものをジョブネットと呼ぶ。JP1：HitachiのITインフラ運用管理ソフト。ジョブ管理・監視・資産管理などの機能を持つ。金融・製造・官公庁などの大規模システムで広く使われる。",
+    "contributor": "表野"
+  },
+  {
+    "id": 63,
+    "category": "ビジネス・組織",
+    "term": "横展開（水平展開）",
+    "explanation": "1か所で解決した問題・改善策・ノウハウを他の部署・システム・箇所にも適用すること。「このバグ対策を横展開する」= 同じ問題が起きうる全箇所に同様の対策を入れること。",
+    "contributor": "表野"
+  },
+  {
+    "id": 64,
+    "category": "プログラミング",
+    "term": "冪等性（べきとうせい / Idempotency）",
+    "explanation": "同じ操作を何度実行しても結果が変わらない性質。例：DELETE /users/123を2回実行しても1回目で削除されるので結果は同じ。APIやバッチ設計で「二重実行しても安全か」の観点として非常に重要な概念。",
+    "contributor": "表野"
+  },
+  {
+    "id": 65,
+    "category": "ビジネス・組織",
+    "term": "EOS（End Of Support）",
+    "explanation": "製品のサポート期限が切れた状態。EOS後はセキュリティ修正も提供されなくなる。Windows XP・Java8の旧バージョンなどがEOSを迎えた有名例。EOS製品を使い続けることは脆弱性リスクが高い。",
+    "contributor": "表野"
+  },
+  {
+    "id": 66,
+    "category": "ビジネス・組織",
+    "term": "プロコン（Pros & Cons）",
+    "explanation": "メリット（Pros）とデメリット（Cons）を対比して整理すること。技術選定や設計方針の意思決定で「プロコンを整理する」= 良い点・悪い点を洗い出して比較検討すること。",
+    "contributor": "表野"
+  },
+  {
+    "id": 67,
+    "category": "セキュリティ・OS",
+    "term": "ハッシュ（Hash）",
+    "explanation": "データを固定長の文字列（ハッシュ値）に変換するアルゴリズム。SHA-256・MD5などがある。同じ入力からは必ず同じ出力が得られるが、出力から入力は復元できない（一方向性）。パスワード保存・改ざん検知に使う。",
+    "contributor": "表野"
+  }
+]
