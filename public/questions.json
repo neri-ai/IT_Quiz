@@ -4,7 +4,8 @@
     "category": "バージョン管理",
     "term": "SVN（Subversion）",
     "explanation": "Apacheが提供する中央集権型バージョン管理システム。1つの中央リポジトリをみんなで共有する。Gitと違い、オフラインでの履歴確認や分岐が困難。かつてのデファクトスタンダードだったがGitに置き換えられた。",
-    "contributor": "山崎"
+    "contributor": "山崎",
+    "answers": ["SVN", "Subversion", "サブバージョン", "svn", "subversion"]
   },
   {
     "id": 2,

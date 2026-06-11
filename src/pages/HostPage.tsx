@@ -107,10 +107,13 @@ export default function HostPage() {
                     <span className="pts-badge">正解 +3点</span>
                   </div>
                   {textSubs.map(sub => (
-                    <div key={sub.clientId} className={`review-row ${sub.result ?? ''}`}>
+                    <div key={sub.clientId} className={`review-row ${sub.result ?? 'pending'}`}>
                       <span className="review-name">{sub.name}</span>
                       <span className="review-answer">{sub.answer}</span>
                       <div className="review-btns">
+                        {sub.result === 'correct' && (
+                          <span className="auto-graded-badge">自動◯</span>
+                        )}
                         <button
                           className={`mark-btn correct-mark ${sub.result === 'correct' ? 'active' : ''}`}
                           onClick={() => send({ type: 'mark-answer', submissionClientId: sub.clientId, result: 'correct' })}

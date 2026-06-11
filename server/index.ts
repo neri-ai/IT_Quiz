@@ -106,6 +106,26 @@ function getCorrectChoiceIndex(qIdx: number): number {
   return qIdx % 4;
 }
 
+/** 大文字小文字・全角半角・余分な空白を正規化して比較用文字列を返す */
+function normalizeText(s: string): string {
+  return s
+    .trim()
+    // 全角英数字 → 半角
+    .replace(/[Ａ-Ｚａ-ｚ０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+    // 全角スペース → 半角
+    .replace(/　/g, ' ')
+    // 連続スペースを1つに
+    .replace(/\s+/g, ' ')
+    .toLowerCase();
+}
+
+/** テキスト回答が正解かどうかを判定（term + answers[] すべてと照合） */
+function isTextAnswerCorrect(submitted: string, q: Question): boolean {
+  const norm = normalizeText(submitted);
+  const accepted = [q.term, ...(q.answers ?? [])];
+  return accepted.some(a => normalizeText(a) === norm);
+}
+
 const clients = new Map<string, Client>();
 
 const state: GameState = {
@@ -240,15 +260,25 @@ function handleMessage(clientId: string, message: C2S) {
     case 'end-answering':
       if (isHost(clientId) && state.phase === 'answering') {
         state.phase = 'reviewing';
-        // Auto-grade choice submissions
         const correctIdx = getCorrectChoiceIndex(state.currentQuestionIndex);
+        const q = questions[state.currentQuestionIndex];
         for (const sub of Object.values(state.submissions)) {
           if (sub.answerMode === 'choice') {
+            // 4択：自動採点 +1点
             sub.result = sub.choiceIndex === correctIdx ? 'correct' : 'wrong';
             if (sub.result === 'correct') {
               const key = sub.name;
               if (!state.scores[key]) state.scores[key] = { name: sub.name, score: 0 };
               state.scores[key].score += 1;
+            }
+          } else {
+            // テキスト：term + answers[] と正規化照合して自動採点 +3点
+            // マッチしなければ pending のまま → ホストが手動で ○/× を付ける
+            if (isTextAnswerCorrect(sub.answer, q)) {
+              sub.result = 'correct';
+              const key = sub.name;
+              if (!state.scores[key]) state.scores[key] = { name: sub.name, score: 0 };
+              state.scores[key].score += 3;
             }
           }
         }

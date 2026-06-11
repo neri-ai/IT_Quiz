@@ -965,6 +965,22 @@ a {
   background: var(--wrong-bg);
 }
 
+.review-row.pending {
+  background: var(--surface);
+}
+
+.auto-graded-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--correct);
+  background: var(--correct-bg);
+  border: 1px solid var(--correct-border);
+  border-radius: var(--radius-sm);
+  padding: 0.1rem 0.45rem;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 .review-name {
   font-weight: 700;
   font-size: 0.9rem;
