@@ -36,6 +36,7 @@ export default function PlayerPage() {
     const trimmed = name.trim();
     if (!trimmed) return;
     localStorage.setItem('player-name', trimmed);
+    setName(trimmed);
     setJoined(true);
   };
 
@@ -98,7 +99,7 @@ export default function PlayerPage() {
         <div className="player-topbar">
           <span className="player-myname">{name}</span>
           <span className={`conn-dot ${connected ? 'online' : 'offline'}`} />
-          <button className="logout-btn" onClick={() => setJoined(false)}>退出</button>
+          <button className="logout-btn" onClick={() => { setJoined(false); setAnswerMode('text'); }}>退出</button>
         </div>
         <div className="player-waiting">
           <div className="waiting-title">IT用語クイズ</div>
@@ -136,7 +137,7 @@ export default function PlayerPage() {
         {effectiveMode === 'choice' && (
           <span className="mode-badge">{isForced4Choice ? '4択問題' : '4択モード'}</span>
         )}
-        <button className="logout-btn" onClick={() => { setJoined(false); setSubmitted(false); }}>
+        <button className="logout-btn" onClick={() => { setJoined(false); setSubmitted(false); setAnswerMode('text'); }}>
           退出
         </button>
       </div>

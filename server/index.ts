@@ -33,7 +33,7 @@ interface Submission {
 interface GameState {
   currentQuestionIndex: number;
   showAnswer: boolean;
-  phase: 'answering' | 'reviewing';
+  phase: 'waiting' | 'answering' | 'reviewing';
   submissions: Record<string, Submission>;
   scores: Record<string, { name: string; score: number }>;
   choices: [string, string, string, string];
