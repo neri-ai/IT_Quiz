@@ -3,7 +3,7 @@ import { useGameSocket } from '../hooks/useGameSocket';
 import { CHOICE_LABELS } from '../types';
 
 export default function PlayerPage() {
-  const { state, questions, connected, myClientId, send } = useGameSocket();
+  const { state, questions, players, playerCount, connected, myClientId, send } = useGameSocket();
 
   const [name, setName] = useState(() => localStorage.getItem('player-name') ?? '');
   const [joined, setJoined] = useState(false);
@@ -89,6 +89,31 @@ export default function PlayerPage() {
 
   if (!state || !currentQuestion) {
     return <div className="loading">サーバーに接続中...</div>;
+  }
+
+  // 待機画面：ホストがゲームを開始するまで
+  if (state.phase === 'waiting') {
+    return (
+      <div className="player-page">
+        <div className="player-topbar">
+          <span className="player-myname">{name}</span>
+          <span className={`conn-dot ${connected ? 'online' : 'offline'}`} />
+          <button className="logout-btn" onClick={() => setJoined(false)}>退出</button>
+        </div>
+        <div className="player-waiting">
+          <div className="waiting-title">IT用語クイズ</div>
+          <div className="waiting-message">ゲーム開始をお待ちください</div>
+          <div className="waiting-player-count">{playerCount}人 が参加中</div>
+          <div className="waiting-player-list">
+            {players.map((p, i) => (
+              <span key={i} className={`waiting-player-name ${p.name === name ? 'me' : ''}`}>
+                {p.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const question = currentQuestion;

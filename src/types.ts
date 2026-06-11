@@ -24,7 +24,7 @@ export interface Submission {
 export interface GameState {
   currentQuestionIndex: number;
   showAnswer: boolean;
-  phase: 'answering' | 'reviewing';
+  phase: 'waiting' | 'answering' | 'reviewing';
   submissions: Record<string, Submission>;
   scores: Record<string, { name: string; score: number }>;
   choices: [string, string, string, string];
@@ -41,4 +41,5 @@ export type ClientMessage =
   | { type: 'prev-question' }
   | { type: 'toggle-answer' }
   | { type: 'end-answering' }
-  | { type: 'mark-answer'; submissionClientId: string; result: 'correct' | 'wrong' };
+  | { type: 'mark-answer'; submissionClientId: string; result: 'correct' | 'wrong' }
+  | { type: 'start-game' };

@@ -666,6 +666,158 @@ a {
 
 .confirm-ok:hover { background: var(--wrong-hover); }
 
+/* ===================== Waiting / Lobby Screens ===================== */
+
+/* Player waiting */
+.player-waiting {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.waiting-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.waiting-message {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+}
+
+.waiting-player-count {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-top: 0.5rem;
+}
+
+.waiting-player-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.25rem;
+}
+
+.waiting-player-name {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.waiting-player-name.me {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  font-weight: 700;
+}
+
+/* Monitor waiting */
+.monitor-waiting {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 1.5rem;
+  padding: 3rem;
+  text-align: center;
+}
+
+.monitor-waiting-title {
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 900;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.monitor-waiting-subtitle {
+  font-size: clamp(1.1rem, 3vw, 1.8rem);
+  color: var(--text-muted);
+}
+
+.monitor-waiting-players {
+  margin-top: 1rem;
+}
+
+.monitor-waiting-label {
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  color: var(--text-dim);
+  margin-bottom: 0.75rem;
+}
+
+.monitor-waiting-names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.monitor-waiting-name {
+  background: var(--surface2);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 1.4rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.3rem);
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Host start screen */
+.host-start-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 3rem;
+}
+
+.start-player-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+  max-width: 640px;
+}
+
+.start-player-chip {
+  background: var(--surface2);
+  border-radius: 999px;
+  padding: 0.45rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.start-game-btn {
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius);
+  font-size: 1.25rem;
+  font-weight: 800;
+  padding: 1rem 3.5rem;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.start-game-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.start-game-btn:active {
+  transform: translateY(0);
+}
+
 /* ===================== Host Page ===================== */
 .host-layout {
   display: flex;

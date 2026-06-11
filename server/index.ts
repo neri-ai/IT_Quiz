@@ -55,7 +55,8 @@ type C2S =
   | { type: 'prev-question' }
   | { type: 'toggle-answer' }
   | { type: 'end-answering' }
-  | { type: 'mark-answer'; submissionClientId: string; result: 'correct' | 'wrong' };
+  | { type: 'mark-answer'; submissionClientId: string; result: 'correct' | 'wrong' }
+  | { type: 'start-game' };
 
 const questionsPath = join(__dirname, '../public/questions.json');
 const questions: Question[] = JSON.parse(readFileSync(questionsPath, 'utf-8'));
@@ -134,7 +135,7 @@ const clients = new Map<string, Client>();
 const state: GameState = {
   currentQuestionIndex: 0,
   showAnswer: false,
-  phase: 'answering',
+  phase: 'waiting',
   submissions: {},
   scores: {},
   choices: generateChoices(0),
@@ -156,6 +157,16 @@ function getPlayerCount(): number {
   return count;
 }
 
+function getPlayers(): { name: string }[] {
+  const players: { name: string }[] = [];
+  for (const client of clients.values()) {
+    if (client.role === 'player' && client.name) {
+      players.push({ name: client.name });
+    }
+  }
+  return players;
+}
+
 function broadcast() {
   const message = JSON.stringify({
     type: 'state-update',
@@ -163,6 +174,7 @@ function broadcast() {
     questions,
     totalQuestions: questions.length,
     playerCount: getPlayerCount(),
+    players: getPlayers(),
   });
   for (const client of clients.values()) {
     if (client.ws.readyState === WebSocket.OPEN) {
@@ -212,6 +224,7 @@ wss.on('connection', (ws) => {
     questions,
     totalQuestions: questions.length,
     playerCount: getPlayerCount(),
+    players: getPlayers(),
   }));
 
   ws.on('message', (data) => {
@@ -308,8 +321,15 @@ function handleMessage(clientId: string, message: C2S) {
       break;
     }
 
+    case 'start-game':
+      if (isHost(clientId) && state.phase === 'waiting') {
+        state.phase = 'answering';
+        broadcast();
+      }
+      break;
+
     case 'next-question':
-      if (isHost(clientId)) {
+      if (isHost(clientId) && state.phase !== 'waiting') {
         state.currentQuestionIndex = Math.min(
           state.currentQuestionIndex + 1,
           questions.length - 1
@@ -323,7 +343,7 @@ function handleMessage(clientId: string, message: C2S) {
       break;
 
     case 'prev-question':
-      if (isHost(clientId)) {
+      if (isHost(clientId) && state.phase !== 'waiting') {
         state.currentQuestionIndex = Math.max(state.currentQuestionIndex - 1, 0);
         state.showAnswer = false;
         state.phase = 'answering';

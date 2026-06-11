@@ -3,7 +3,7 @@ import { useGameSocket } from '../hooks/useGameSocket';
 import { CHOICE_LABELS } from '../types';
 
 export default function HostPage() {
-  const { state, questions, totalQuestions, playerCount, connected, send } = useGameSocket();
+  const { state, questions, totalQuestions, playerCount, players, connected, send } = useGameSocket();
 
   useEffect(() => {
     if (connected) {
@@ -13,6 +13,41 @@ export default function HostPage() {
 
   if (!state || questions.length === 0) {
     return <div className="loading">サーバーに接続中...</div>;
+  }
+
+  // 待機画面：ゲーム開始前
+  if (state.phase === 'waiting') {
+    return (
+      <div className="host-layout">
+        <header className="host-header">
+          <div className="header-left">
+            <span className="q-counter">IT用語クイズ</span>
+          </div>
+          <div className="header-right">
+            <span className="player-count-badge">参加 {playerCount}人</span>
+            <div className={`conn-status ${connected ? 'online' : 'offline'}`}>
+              {connected ? '● 接続中' : '○ 切断'}
+            </div>
+          </div>
+        </header>
+        <div className="host-start-screen">
+          <div className="start-player-list">
+            {players.length === 0
+              ? <span className="empty-msg">参加者を待っています...</span>
+              : players.map((p, i) => (
+                  <span key={i} className="start-player-chip">{p.name}</span>
+                ))
+            }
+          </div>
+          <button
+            className="start-game-btn"
+            onClick={() => send({ type: 'start-game' })}
+          >
+            ゲームを開始
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const question = questions[state.currentQuestionIndex];
@@ -83,7 +118,9 @@ export default function HostPage() {
           <div className={`phase-badge ${state.phase}`}>
             {state.phase === 'answering'
               ? `回答受付中 — ${submissions.length} / ${playerCount}人 回答済み`
-              : '採点フェーズ'}
+              : state.phase === 'reviewing'
+              ? '採点フェーズ'
+              : '待機中'}
           </div>
 
           {/* Answering: submitted names */}

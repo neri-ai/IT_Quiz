@@ -9,6 +9,7 @@ export interface GameSocketData {
   questions: Question[];
   totalQuestions: number;
   playerCount: number;
+  players: { name: string }[];
   connected: boolean;
   myClientId: string | null;
   send: (message: ClientMessage) => void;
@@ -19,6 +20,7 @@ export function useGameSocket(): GameSocketData {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [playerCount, setPlayerCount] = useState(0);
+  const [players, setPlayers] = useState<{ name: string }[]>([]);
   const [connected, setConnected] = useState(false);
   const [myClientId, setMyClientId] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
@@ -40,6 +42,7 @@ export function useGameSocket(): GameSocketData {
           setQuestions(msg.questions as Question[]);
           setTotalQuestions(msg.totalQuestions as number);
           setPlayerCount(msg.playerCount as number);
+          setPlayers((msg.players as { name: string }[]) ?? []);
         }
       } catch {
         // ignore parse errors
@@ -68,5 +71,5 @@ export function useGameSocket(): GameSocketData {
     }
   }, []);
 
-  return { state: gameState, questions, totalQuestions, playerCount, connected, myClientId, send };
+  return { state: gameState, questions, totalQuestions, playerCount, players, connected, myClientId, send };
 }

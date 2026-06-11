@@ -3,7 +3,7 @@ import { useGameSocket } from '../hooks/useGameSocket';
 import { CHOICE_LABELS } from '../types';
 
 export default function MonitorPage() {
-  const { state, questions, totalQuestions, playerCount, connected, send } = useGameSocket();
+  const { state, questions, totalQuestions, playerCount, players, connected, send } = useGameSocket();
 
   useEffect(() => {
     if (connected) {
@@ -13,6 +13,31 @@ export default function MonitorPage() {
 
   if (!state || questions.length === 0) {
     return <div className="loading">接続中...</div>;
+  }
+
+  // 待機画面
+  if (state.phase === 'waiting') {
+    return (
+      <div className="monitor-layout">
+        <div className="monitor-waiting">
+          <div className="monitor-waiting-title">IT用語クイズ</div>
+          <div className="monitor-waiting-subtitle">開始をお待ちください</div>
+          {players.length > 0 && (
+            <div className="monitor-waiting-players">
+              <div className="monitor-waiting-label">参加者 {playerCount}人</div>
+              <div className="monitor-waiting-names">
+                {players.map((p, i) => (
+                  <div key={i} className="monitor-waiting-name">{p.name}</div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        {!connected && (
+          <div className="monitor-disconnected">接続が切れました。再接続中...</div>
+        )}
+      </div>
+    );
   }
 
   const question = questions[state.currentQuestionIndex];
