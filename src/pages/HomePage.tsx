@@ -30,7 +30,7 @@ export default function HomePage() {
           <div className="card-icon">🎤</div>
           <div className="card-body">
             <h2>出題者画面</h2>
-            <p>問題操作・○×判定・得点管理</p>
+            <p>問題操作・採点・得点管理</p>
           </div>
         </Link>
 
@@ -42,10 +42,10 @@ export default function HomePage() {
           </div>
         </Link>
 
-        <Link to="/buzzer" className="home-card buzzer-card">
-          <div className="card-icon">🔔</div>
+        <Link to="/player" className="home-card player-card">
+          <div className="card-icon">✏️</div>
           <div className="card-body">
-            <h2>早押しボタン</h2>
+            <h2>回答画面</h2>
             <p>スマホ・タブレットから参加</p>
           </div>
         </Link>
@@ -56,9 +56,9 @@ export default function HomePage() {
           <h3>スマホから接続するには</h3>
           <p>同じWi-Fiに接続して以下のURLにアクセス</p>
           <div className="url-box">
-            <code>http://{networkIP}:{port}/buzzer</code>
+            <code>http://{networkIP}:{port}/player</code>
           </div>
-          <p className="url-hint">QRコードリーダーでも読み取れます</p>
+          <p className="url-hint">テキスト入力、または4択モードで回答できます</p>
         </div>
       )}
     </div>

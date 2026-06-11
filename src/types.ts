@@ -4,31 +4,37 @@ export interface Question {
   term: string;
   explanation: string;
   contributor: string;
+  answers?: string[];
 }
 
-export interface BuzzerEntry {
-  id: string;
+export interface Submission {
+  clientId: string;
   name: string;
-  pressedAt: number;
+  answerMode: 'text' | 'choice';
+  answer: string;
+  choiceIndex?: number;
+  submittedAt: number;
+  result?: 'correct' | 'wrong';
 }
 
 export interface GameState {
   currentQuestionIndex: number;
   showAnswer: boolean;
-  buzzerQueue: BuzzerEntry[];
-  currentAnswerIndex: number;
+  phase: 'answering' | 'reviewing';
+  submissions: Record<string, Submission>;
   scores: Record<string, { name: string; score: number }>;
+  choices: [string, string, string, string];
 }
 
-export type ClientRole = 'host' | 'monitor' | 'buzzer';
+export type ClientRole = 'host' | 'monitor' | 'player';
+
+export const CHOICE_LABELS = ['A', 'B', 'C', 'D'] as const;
 
 export type ClientMessage =
   | { type: 'register'; role: ClientRole; name?: string }
-  | { type: 'buzz' }
+  | { type: 'submit-answer'; answer: string; answerMode: 'text' | 'choice'; choiceIndex?: number }
   | { type: 'next-question' }
   | { type: 'prev-question' }
   | { type: 'toggle-answer' }
-  | { type: 'correct' }
-  | { type: 'wrong' }
-  | { type: 'undo-wrong' }
-  | { type: 'reset-buzzer' };
+  | { type: 'end-answering' }
+  | { type: 'mark-answer'; submissionClientId: string; result: 'correct' | 'wrong' };

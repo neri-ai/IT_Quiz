@@ -15,23 +15,29 @@ interface Question {
   term: string;
   explanation: string;
   contributor: string;
+  answers?: string[];
 }
 
-interface BuzzerEntry {
-  id: string;
+interface Submission {
+  clientId: string;
   name: string;
-  pressedAt: number;
+  answerMode: 'text' | 'choice';
+  answer: string;
+  choiceIndex?: number;
+  submittedAt: number;
+  result?: 'correct' | 'wrong';
 }
 
 interface GameState {
   currentQuestionIndex: number;
   showAnswer: boolean;
-  buzzerQueue: BuzzerEntry[];
-  currentAnswerIndex: number;
+  phase: 'answering' | 'reviewing';
+  submissions: Record<string, Submission>;
   scores: Record<string, { name: string; score: number }>;
+  choices: [string, string, string, string];
 }
 
-type ClientRole = 'host' | 'monitor' | 'buzzer';
+type ClientRole = 'host' | 'monitor' | 'player';
 
 interface Client {
   ws: WebSocket;
@@ -42,27 +48,65 @@ interface Client {
 
 type C2S =
   | { type: 'register'; role: ClientRole; name?: string }
-  | { type: 'buzz' }
+  | { type: 'submit-answer'; answer: string; answerMode: 'text' | 'choice'; choiceIndex?: number }
   | { type: 'next-question' }
   | { type: 'prev-question' }
   | { type: 'toggle-answer' }
-  | { type: 'correct' }
-  | { type: 'wrong' }
-  | { type: 'undo-wrong' }
-  | { type: 'reset-buzzer' };
+  | { type: 'end-answering' }
+  | { type: 'mark-answer'; submissionClientId: string; result: 'correct' | 'wrong' };
 
-// Load questions
 const questionsPath = join(__dirname, '../public/questions.json');
 const questions: Question[] = JSON.parse(readFileSync(questionsPath, 'utf-8'));
+
+function generateChoices(qIdx: number): [string, string, string, string] {
+  const total = questions.length;
+  const correctExplanation = questions[qIdx].explanation;
+
+  // Pick 3 distinct distractors deterministically based on qIdx
+  const usedIdxs = new Set([qIdx]);
+  const distractorIdxs: number[] = [];
+
+  const steps = [
+    Math.max(1, Math.floor(total / 4)),
+    Math.max(1, Math.floor(total / 2)),
+    Math.max(1, Math.floor(3 * total / 4)),
+  ];
+
+  for (const step of steps) {
+    let idx = (qIdx + step) % total;
+    while (usedIdxs.has(idx)) {
+      idx = (idx + 1) % total;
+    }
+    usedIdxs.add(idx);
+    distractorIdxs.push(idx);
+  }
+
+  const distractors = distractorIdxs.map(i => questions[i].explanation);
+
+  // Correct answer placed at position (qIdx % 4) so it rotates A→B→C→D
+  const correctPos = qIdx % 4;
+  const choices: string[] = [];
+  let d = 0;
+  for (let i = 0; i < 4; i++) {
+    choices.push(i === correctPos ? correctExplanation : distractors[d++]);
+  }
+
+  return choices as [string, string, string, string];
+}
+
+function getCorrectChoiceIndex(qIdx: number): number {
+  return qIdx % 4;
+}
 
 const clients = new Map<string, Client>();
 
 const state: GameState = {
   currentQuestionIndex: 0,
   showAnswer: false,
-  buzzerQueue: [],
-  currentAnswerIndex: 0,
+  phase: 'answering',
+  submissions: {},
   scores: {},
+  choices: generateChoices(0),
 };
 
 function generateId(): string {
@@ -73,12 +117,21 @@ function isHost(clientId: string): boolean {
   return clients.get(clientId)?.role === 'host';
 }
 
+function getPlayerCount(): number {
+  let count = 0;
+  for (const client of clients.values()) {
+    if (client.role === 'player') count++;
+  }
+  return count;
+}
+
 function broadcast() {
   const message = JSON.stringify({
     type: 'state-update',
     state,
     questions,
     totalQuestions: questions.length,
+    playerCount: getPlayerCount(),
   });
   for (const client of clients.values()) {
     if (client.ws.readyState === WebSocket.OPEN) {
@@ -104,7 +157,6 @@ const app = express();
 const server = createServer(app);
 const wss = new WebSocketServer({ server, path: '/ws' });
 
-// Serve static files in production
 const distPath = join(__dirname, '../dist');
 if (existsSync(distPath)) {
   app.use(express.static(distPath));
@@ -113,7 +165,6 @@ if (existsSync(distPath)) {
   });
 }
 
-// Network info endpoint
 app.get('/api/network', (_req, res) => {
   res.json({ localIP: getLocalIP(), port: PORT });
 });
@@ -123,14 +174,13 @@ wss.on('connection', (ws) => {
   const client: Client = { ws, id: clientId, role: null, name: null };
   clients.set(clientId, client);
 
-  // Tell client its own ID
   ws.send(JSON.stringify({ type: 'hello', clientId }));
-  // Send current state
   ws.send(JSON.stringify({
     type: 'state-update',
     state,
     questions,
     totalQuestions: questions.length,
+    playerCount: getPlayerCount(),
   }));
 
   ws.on('message', (data) => {
@@ -144,15 +194,7 @@ wss.on('connection', (ws) => {
 
   ws.on('close', () => {
     clients.delete(clientId);
-    // Remove from buzzer queue if disconnected mid-round
-    const idx = state.buzzerQueue.findIndex(b => b.id === clientId);
-    if (idx !== -1) {
-      state.buzzerQueue.splice(idx, 1);
-      if (state.currentAnswerIndex > idx) {
-        state.currentAnswerIndex = Math.max(0, state.currentAnswerIndex - 1);
-      }
-      broadcast();
-    }
+    broadcast();
   });
 });
 
@@ -164,8 +206,7 @@ function handleMessage(clientId: string, message: C2S) {
     case 'register':
       client.role = message.role;
       client.name = message.name ?? null;
-      if (message.role === 'buzzer' && message.name) {
-        // Key scores by name so reconnects preserve score
+      if (message.role === 'player' && message.name) {
         const key = message.name;
         if (!state.scores[key]) {
           state.scores[key] = { name: message.name, score: 0 };
@@ -174,18 +215,57 @@ function handleMessage(clientId: string, message: C2S) {
       broadcast();
       break;
 
-    case 'buzz':
-      if (client.role === 'buzzer' && client.name) {
-        if (!state.buzzerQueue.find(b => b.id === clientId)) {
-          state.buzzerQueue.push({
-            id: clientId,
-            name: client.name,
-            pressedAt: Date.now(),
-          });
+    case 'submit-answer':
+      if (client.role === 'player' && client.name && state.phase === 'answering') {
+        state.submissions[clientId] = {
+          clientId,
+          name: client.name,
+          answerMode: message.answerMode,
+          answer: message.answer,
+          choiceIndex: message.choiceIndex,
+          submittedAt: Date.now(),
+        };
+        broadcast();
+      }
+      break;
+
+    case 'end-answering':
+      if (isHost(clientId) && state.phase === 'answering') {
+        state.phase = 'reviewing';
+        // Auto-grade choice submissions
+        const correctIdx = getCorrectChoiceIndex(state.currentQuestionIndex);
+        for (const sub of Object.values(state.submissions)) {
+          if (sub.answerMode === 'choice') {
+            sub.result = sub.choiceIndex === correctIdx ? 'correct' : 'wrong';
+            if (sub.result === 'correct') {
+              const key = sub.name;
+              if (!state.scores[key]) state.scores[key] = { name: sub.name, score: 0 };
+              state.scores[key].score += 1;
+            }
+          }
         }
         broadcast();
       }
       break;
+
+    case 'mark-answer': {
+      if (isHost(clientId)) {
+        const sub = state.submissions[message.submissionClientId];
+        if (sub && sub.answerMode === 'text') {
+          const prev = sub.result;
+          sub.result = message.result;
+          const key = sub.name;
+          if (!state.scores[key]) state.scores[key] = { name: sub.name, score: 0 };
+          if (message.result === 'correct' && prev !== 'correct') {
+            state.scores[key].score += 3;
+          } else if (message.result === 'wrong' && prev === 'correct') {
+            state.scores[key].score = Math.max(0, state.scores[key].score - 3);
+          }
+          broadcast();
+        }
+      }
+      break;
+    }
 
     case 'next-question':
       if (isHost(clientId)) {
@@ -194,8 +274,9 @@ function handleMessage(clientId: string, message: C2S) {
           questions.length - 1
         );
         state.showAnswer = false;
-        state.buzzerQueue = [];
-        state.currentAnswerIndex = 0;
+        state.phase = 'answering';
+        state.submissions = {};
+        state.choices = generateChoices(state.currentQuestionIndex);
         broadcast();
       }
       break;
@@ -204,8 +285,9 @@ function handleMessage(clientId: string, message: C2S) {
       if (isHost(clientId)) {
         state.currentQuestionIndex = Math.max(state.currentQuestionIndex - 1, 0);
         state.showAnswer = false;
-        state.buzzerQueue = [];
-        state.currentAnswerIndex = 0;
+        state.phase = 'answering';
+        state.submissions = {};
+        state.choices = generateChoices(state.currentQuestionIndex);
         broadcast();
       }
       break;
@@ -213,46 +295,6 @@ function handleMessage(clientId: string, message: C2S) {
     case 'toggle-answer':
       if (isHost(clientId)) {
         state.showAnswer = !state.showAnswer;
-        broadcast();
-      }
-      break;
-
-    case 'correct': {
-      if (isHost(clientId) && state.buzzerQueue.length > 0) {
-        const winner = state.buzzerQueue[state.currentAnswerIndex];
-        if (winner) {
-          const key = winner.name;
-          if (!state.scores[key]) {
-            state.scores[key] = { name: winner.name, score: 0 };
-          }
-          state.scores[key].score++;
-        }
-        broadcast();
-      }
-      break;
-    }
-
-    case 'wrong':
-      if (isHost(clientId) && state.buzzerQueue.length > 0) {
-        state.currentAnswerIndex = Math.min(
-          state.currentAnswerIndex + 1,
-          state.buzzerQueue.length
-        );
-        broadcast();
-      }
-      break;
-
-    case 'undo-wrong':
-      if (isHost(clientId)) {
-        state.currentAnswerIndex = Math.max(state.currentAnswerIndex - 1, 0);
-        broadcast();
-      }
-      break;
-
-    case 'reset-buzzer':
-      if (isHost(clientId)) {
-        state.buzzerQueue = [];
-        state.currentAnswerIndex = 0;
         broadcast();
       }
       break;
@@ -267,6 +309,6 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`  📱 ネットワーク: http://${localIP}:${PORT}`);
   console.log(`\n  🎤 出題者画面: http://${localIP}:${PORT}/host`);
   console.log(`  📺 モニター画面: http://${localIP}:${PORT}/monitor`);
-  console.log(`  🔔 早押しボタン: http://${localIP}:${PORT}/buzzer`);
+  console.log(`  ✏️  回答画面: http://${localIP}:${PORT}/player`);
   console.log('\n');
 });

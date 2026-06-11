@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { useGameSocket } from '../hooks/useGameSocket';
+import { CHOICE_LABELS } from '../types';
 
 export default function MonitorPage() {
-  const { state, questions, totalQuestions, connected, send } = useGameSocket();
+  const { state, questions, totalQuestions, playerCount, connected, send } = useGameSocket();
 
   useEffect(() => {
     if (connected) {
@@ -15,27 +16,20 @@ export default function MonitorPage() {
   }
 
   const question = questions[state.currentQuestionIndex];
-  const currentAnswerer = state.currentAnswerIndex < state.buzzerQueue.length
-    ? state.buzzerQueue[state.currentAnswerIndex]
-    : null;
+  const submissions = Object.values(state.submissions).sort((a, b) => a.submittedAt - b.submittedAt);
 
   return (
     <div className="monitor-layout">
-      {/* Question Number */}
+      {/* Header */}
       <div className="monitor-counter">
         第 {state.currentQuestionIndex + 1} 問 / {totalQuestions}問
         <span className="monitor-category">{question.category}</span>
+        <span className={`monitor-phase-badge ${state.phase}`}>
+          {state.phase === 'answering' ? '回答中' : '採点中'}
+        </span>
       </div>
 
-      {/* Current Answer Right Highlight */}
-      {currentAnswerer && (
-        <div className="monitor-answerer-banner">
-          <span className="answerer-label">回答権</span>
-          <span className="answerer-name">{currentAnswerer.name}</span>
-        </div>
-      )}
-
-      {/* Question Display */}
+      {/* Question */}
       <div className="monitor-question">
         <div className="monitor-term">{question.term}</div>
         {state.showAnswer && (
@@ -43,24 +37,52 @@ export default function MonitorPage() {
         )}
       </div>
 
-      {/* Buzzer Queue */}
-      {state.buzzerQueue.length > 0 && (
-        <div className="monitor-buzzer-list">
-          {state.buzzerQueue.map((entry, idx) => (
+      {/* Answering: who submitted (not what) */}
+      {state.phase === 'answering' && (
+        <div className="monitor-answering-status">
+          <div className="monitor-answered-count">
+            {submissions.length} / {playerCount}人 回答済み
+          </div>
+          {submissions.length > 0 && (
+            <div className="monitor-answered-names">
+              {submissions.map(s => (
+                <span key={s.clientId} className="monitor-answered-name">
+                  {s.name} ✓
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Reviewing: show all answers with results */}
+      {state.phase === 'reviewing' && submissions.length > 0 && (
+        <div className="monitor-review-list">
+          {submissions.map(sub => (
             <div
-              key={entry.id}
-              className={`monitor-buzzer-entry ${
-                idx === state.currentAnswerIndex ? 'has-right' : ''
-              } ${idx < state.currentAnswerIndex ? 'passed' : ''}`}
+              key={sub.clientId}
+              className={`monitor-review-row ${sub.result ?? 'pending'}`}
             >
-              <span className="mb-rank">{idx + 1}位</span>
-              <span className="mb-name">{entry.name}</span>
+              <span className="monitor-review-result">
+                {sub.result === 'correct' && '◯'}
+                {sub.result === 'wrong' && '×'}
+                {!sub.result && '…'}
+              </span>
+              <span className="monitor-review-name">{sub.name}</span>
+              <span className={`monitor-review-mode ${sub.answerMode}`}>
+                {sub.answerMode === 'text' ? 'テキスト' : '4択'}
+              </span>
+              <span className="monitor-review-answer">
+                {sub.answerMode === 'choice' && sub.choiceIndex !== undefined
+                  ? `${CHOICE_LABELS[sub.choiceIndex]}. ${sub.answer}`
+                  : sub.answer}
+              </span>
             </div>
           ))}
         </div>
       )}
 
-      {/* Score Board */}
+      {/* Scoreboard */}
       {Object.keys(state.scores).length > 0 && (
         <div className="monitor-scoreboard">
           {Object.entries(state.scores)

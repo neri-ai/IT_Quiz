@@ -1,8 +1,8 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import HostPage from './pages/HostPage';
 import MonitorPage from './pages/MonitorPage';
-import BuzzerPage from './pages/BuzzerPage';
+import PlayerPage from './pages/PlayerPage';
 
 export default function App() {
   return (
@@ -11,7 +11,8 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/host" element={<HostPage />} />
         <Route path="/monitor" element={<MonitorPage />} />
-        <Route path="/buzzer" element={<BuzzerPage />} />
+        <Route path="/player" element={<PlayerPage />} />
+        <Route path="/buzzer" element={<Navigate to="/player" replace />} />
       </Routes>
     </BrowserRouter>
   );

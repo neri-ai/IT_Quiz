@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { useGameSocket } from '../hooks/useGameSocket';
+import { CHOICE_LABELS } from '../types';
 
 export default function HostPage() {
-  const { state, questions, totalQuestions, connected, send } = useGameSocket();
+  const { state, questions, totalQuestions, playerCount, connected, send } = useGameSocket();
 
   useEffect(() => {
     if (connected) {
@@ -15,18 +16,15 @@ export default function HostPage() {
   }
 
   const question = questions[state.currentQuestionIndex];
-  const currentAnswerer = state.currentAnswerIndex < state.buzzerQueue.length
-    ? state.buzzerQueue[state.currentAnswerIndex]
-    : null;
+  const submissions = Object.values(state.submissions).sort((a, b) => a.submittedAt - b.submittedAt);
+  const textSubs = submissions.filter(s => s.answerMode === 'text');
+  const choiceSubs = submissions.filter(s => s.answerMode === 'choice');
 
   return (
     <div className="host-layout">
-      {/* Header */}
       <header className="host-header">
         <div className="header-left">
-          <span className="q-counter">
-            第 {state.currentQuestionIndex + 1} 問 / {totalQuestions}問
-          </span>
+          <span className="q-counter">第 {state.currentQuestionIndex + 1} 問 / {totalQuestions}問</span>
         </div>
         <div className="header-nav">
           <button
@@ -34,116 +32,127 @@ export default function HostPage() {
             onClick={() => send({ type: 'prev-question' })}
             disabled={state.currentQuestionIndex === 0}
           >
-            ← 前の問題
+            ← 前
           </button>
           <button
             className="nav-btn"
             onClick={() => send({ type: 'next-question' })}
             disabled={state.currentQuestionIndex === totalQuestions - 1}
           >
-            次の問題 →
+            次 →
           </button>
         </div>
-        <div className={`conn-status ${connected ? 'online' : 'offline'}`}>
-          {connected ? '● 接続中' : '○ 切断'}
+        <div className="header-right">
+          <span className="player-count-badge">参加 {playerCount}人</span>
+          <div className={`conn-status ${connected ? 'online' : 'offline'}`}>
+            {connected ? '● 接続中' : '○ 切断'}
+          </div>
         </div>
       </header>
 
       <div className="host-body">
-        {/* Question Card */}
         <main className="host-main">
-          <div className="question-card host-question">
+          {/* Question card */}
+          <div className="question-card">
             <div className="category-tag">{question.category}</div>
             <div className="term-display">{question.term}</div>
-            {state.showAnswer ? (
-              <div className="explanation-display">{question.explanation}</div>
-            ) : (
-              <div className="explanation-hidden">（答えを隠しています）</div>
-            )}
+            {state.showAnswer
+              ? <div className="explanation-display">{question.explanation}</div>
+              : <div className="explanation-hidden">（解説は非表示）</div>
+            }
             <div className="contributor-label">出題者: {question.contributor}</div>
-            <button
-              className={`toggle-answer-btn ${state.showAnswer ? 'hide-mode' : 'show-mode'}`}
-              onClick={() => send({ type: 'toggle-answer' })}
-            >
-              {state.showAnswer ? '答えを隠す' : '答えを表示する'}
-            </button>
-          </div>
-
-          {/* Answer Right Controls */}
-          <div className="answer-controls-card">
-            <div className="answer-controls-header">
-              <span>回答権</span>
-              {currentAnswerer ? (
-                <span className="current-answerer">{currentAnswerer.name}</span>
-              ) : (
-                <span className="no-answerer">
-                  {state.buzzerQueue.length === 0 ? '（早押し待ち）' : '（全員終了）'}
-                </span>
+            <div className="host-question-actions">
+              <button
+                className={`toggle-answer-btn ${state.showAnswer ? 'hide-mode' : 'show-mode'}`}
+                onClick={() => send({ type: 'toggle-answer' })}
+              >
+                {state.showAnswer ? '解説を隠す' : '解説を表示'}
+              </button>
+              {state.phase === 'answering' && (
+                <button
+                  className="end-answering-btn"
+                  onClick={() => send({ type: 'end-answering' })}
+                >
+                  回答終了
+                </button>
               )}
             </div>
-            <div className="answer-buttons">
-              <button
-                className="undo-btn"
-                onClick={() => send({ type: 'undo-wrong' })}
-                disabled={state.currentAnswerIndex === 0}
-                title="前の人に回答権を戻す"
-              >
-                ↩ 戻す
-              </button>
-              <button
-                className="correct-btn"
-                onClick={() => send({ type: 'correct' })}
-                disabled={!currentAnswerer}
-              >
-                ◯ 正解
-              </button>
-              <button
-                className="wrong-btn"
-                onClick={() => send({ type: 'wrong' })}
-                disabled={state.buzzerQueue.length === 0 || !currentAnswerer}
-              >
-                × 不正解
-              </button>
-            </div>
           </div>
-        </main>
 
-        {/* Right Sidebar */}
-        <aside className="host-sidebar">
-          {/* Buzzer Queue */}
-          <div className="sidebar-card">
-            <div className="sidebar-card-header">
-              <h3>早押し状況</h3>
-              <button
-                className="reset-buzzer-btn"
-                onClick={() => send({ type: 'reset-buzzer' })}
-              >
-                リセット
-              </button>
-            </div>
-            {state.buzzerQueue.length === 0 ? (
-              <p className="empty-msg">まだ誰も押していません</p>
-            ) : (
-              <div className="buzzer-queue">
-                {state.buzzerQueue.map((entry, idx) => (
-                  <div
-                    key={entry.id}
-                    className={`buzzer-entry ${
-                      idx === state.currentAnswerIndex ? 'has-right' : ''
-                    } ${idx < state.currentAnswerIndex ? 'passed' : ''}`}
-                  >
-                    <span className="entry-rank">{idx + 1}</span>
-                    <span className="entry-name">{entry.name}</span>
-                    {idx === state.currentAnswerIndex && (
-                      <span className="right-badge">回答権</span>
-                    )}
-                  </div>
+          {/* Phase status */}
+          <div className={`phase-badge ${state.phase}`}>
+            {state.phase === 'answering'
+              ? `回答受付中 — ${submissions.length} / ${playerCount}人 回答済み`
+              : '採点フェーズ'}
+          </div>
+
+          {/* Answering: submitted names */}
+          {state.phase === 'answering' && submissions.length > 0 && (
+            <div className="submitted-names-card">
+              <div className="submitted-names">
+                {submissions.map(s => (
+                  <span key={s.clientId} className="submitted-name-tag">{s.name}</span>
                 ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* Score Board */}
+          {/* Reviewing: mark answers */}
+          {state.phase === 'reviewing' && (
+            <div className="review-section">
+              {textSubs.length > 0 && (
+                <div className="review-group">
+                  <div className="review-group-header">
+                    テキスト回答
+                    <span className="pts-badge">正解 +3点</span>
+                  </div>
+                  {textSubs.map(sub => (
+                    <div key={sub.clientId} className={`review-row ${sub.result ?? ''}`}>
+                      <span className="review-name">{sub.name}</span>
+                      <span className="review-answer">{sub.answer}</span>
+                      <div className="review-btns">
+                        <button
+                          className={`mark-btn correct-mark ${sub.result === 'correct' ? 'active' : ''}`}
+                          onClick={() => send({ type: 'mark-answer', submissionClientId: sub.clientId, result: 'correct' })}
+                        >◯</button>
+                        <button
+                          className={`mark-btn wrong-mark ${sub.result === 'wrong' ? 'active' : ''}`}
+                          onClick={() => send({ type: 'mark-answer', submissionClientId: sub.clientId, result: 'wrong' })}
+                        >×</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {choiceSubs.length > 0 && (
+                <div className="review-group">
+                  <div className="review-group-header">
+                    4択回答
+                    <span className="pts-badge">正解 +1点（自動採点済み）</span>
+                  </div>
+                  {choiceSubs.map(sub => (
+                    <div key={sub.clientId} className={`review-row ${sub.result ?? ''}`}>
+                      <span className="review-name">{sub.name}</span>
+                      <span className="review-answer">
+                        {sub.choiceIndex !== undefined ? CHOICE_LABELS[sub.choiceIndex] : '?'}. {sub.answer}
+                      </span>
+                      <span className={`auto-result ${sub.result}`}>
+                        {sub.result === 'correct' ? '◯' : '×'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {submissions.length === 0 && (
+                <p className="empty-msg">この問題の回答者はいませんでした</p>
+              )}
+            </div>
+          )}
+        </main>
+
+        <aside className="host-sidebar">
           <div className="sidebar-card">
             <h3>スコア</h3>
             {Object.keys(state.scores).length === 0 ? (
