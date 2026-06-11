@@ -106,16 +106,19 @@ function getCorrectChoiceIndex(qIdx: number): number {
   return qIdx % 4;
 }
 
-/** 大文字小文字・全角半角・余分な空白を正規化して比較用文字列を返す */
+/** 大文字小文字・全角半角・括弧注釈・余分な空白を正規化して比較用文字列を返す */
 function normalizeText(s: string): string {
   return s
     .trim()
+    // 括弧内の注釈を除去: （Subversion）や (Subversion) など
+    .replace(/[（(][^）)]*[）)]/g, '')
     // 全角英数字 → 半角
     .replace(/[Ａ-Ｚａ-ｚ０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
     // 全角スペース → 半角
     .replace(/　/g, ' ')
-    // 連続スペースを1つに
+    // 連続スペース・前後空白を整理
     .replace(/\s+/g, ' ')
+    .trim()
     .toLowerCase();
 }
 

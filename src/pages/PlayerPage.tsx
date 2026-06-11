@@ -141,12 +141,20 @@ export default function PlayerPage() {
         <div className="player-answer-area">
           {effectiveMode === 'text' ? (
             <>
-              <textarea
+              <input
                 className="text-answer-input"
+                type="text"
                 placeholder="IT用語名を入力してください..."
                 value={textInput}
                 onChange={e => setTextInput(e.target.value)}
-                rows={3}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && !e.nativeEvent.isComposing && textInput.trim()) {
+                    handleSubmit();
+                  }
+                }}
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck={false}
               />
               <div className="player-submit-row">
                 <button

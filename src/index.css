@@ -393,17 +393,22 @@ a {
   border: 2px solid var(--border);
   border-radius: var(--radius);
   color: var(--text);
-  font-size: 1rem;
+  font-size: 1.05rem;
   padding: 0.85rem 1rem;
-  resize: vertical;
   outline: none;
   font-family: inherit;
-  line-height: 1.6;
+  line-height: 1.5;
   transition: border-color 0.2s;
+  display: block;
 }
 
 .text-answer-input:focus {
   border-color: var(--primary);
+  background: #fff;
+}
+
+.text-answer-input::placeholder {
+  color: var(--text-dim);
 }
 
 .player-submit-row {
@@ -424,6 +429,12 @@ a {
 
 .submit-answer-btn:not(:disabled):hover {
   background: var(--primary-hover);
+}
+
+.submit-answer-btn:disabled {
+  background: var(--surface3);
+  color: var(--text-dim);
+  cursor: not-allowed;
 }
 
 .submitted-label {
