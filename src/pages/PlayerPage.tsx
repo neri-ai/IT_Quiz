@@ -7,13 +7,17 @@ export default function PlayerPage() {
 
   const [name, setName] = useState(() => localStorage.getItem('player-name') ?? '');
   const [joined, setJoined] = useState(false);
-  const [answerMode, setAnswerMode] = useState<'text' | 'choice'>(
-    () => (localStorage.getItem('player-answer-mode') as 'text' | 'choice') ?? 'text'
-  );
+  // セッション内のみ有効。テキスト→4択の一方通行（localStorage には保存しない）
+  const [answerMode, setAnswerMode] = useState<'text' | 'choice'>('text');
   const [textInput, setTextInput] = useState('');
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [confirmSwitch, setConfirmSwitch] = useState(false);
+
+  // 問題側に choices が定義されていれば強制4択（プレイヤーのモード設定を上書き）
+  const currentQuestion = state && questions.length > 0 ? questions[state.currentQuestionIndex] : null;
+  const isForced4Choice = !!currentQuestion?.choices;
+  const effectiveMode: 'text' | 'choice' = isForced4Choice ? 'choice' : answerMode;
 
   useEffect(() => {
     if (connected && joined) {
@@ -37,7 +41,6 @@ export default function PlayerPage() {
 
   const handleConfirmSwitch = () => {
     setAnswerMode('choice');
-    localStorage.setItem('player-answer-mode', 'choice');
     setConfirmSwitch(false);
     setTextInput('');
     setSelectedChoice(null);
@@ -46,7 +49,7 @@ export default function PlayerPage() {
 
   const handleSubmit = () => {
     if (!state || state.phase !== 'answering') return;
-    if (answerMode === 'text') {
+    if (effectiveMode === 'text') {
       if (!textInput.trim()) return;
       send({ type: 'submit-answer', answer: textInput.trim(), answerMode: 'text' });
     } else {
@@ -84,11 +87,11 @@ export default function PlayerPage() {
     );
   }
 
-  if (!state || questions.length === 0) {
+  if (!state || !currentQuestion) {
     return <div className="loading">サーバーに接続中...</div>;
   }
 
-  const question = questions[state.currentQuestionIndex];
+  const question = currentQuestion;
   const mySubmission = myClientId ? state.submissions[myClientId] : null;
   const myScore = state.scores[name]?.score ?? 0;
   const submittedCount = Object.keys(state.submissions).length;
@@ -100,13 +103,13 @@ export default function PlayerPage() {
         <span className="player-myname">{name}</span>
         <span className="player-myscore">{myScore}点</span>
         <span className={`conn-dot ${connected ? 'online' : 'offline'}`} />
-        {answerMode === 'text' && state.phase === 'answering' && (
+        {!isForced4Choice && answerMode === 'text' && state.phase === 'answering' && (
           <button className="switch-mode-btn" onClick={() => setConfirmSwitch(true)}>
             4択に変更
           </button>
         )}
-        {answerMode === 'choice' && (
-          <span className="mode-badge">4択モード</span>
+        {effectiveMode === 'choice' && (
+          <span className="mode-badge">{isForced4Choice ? '4択問題' : '4択モード'}</span>
         )}
         <button className="logout-btn" onClick={() => { setJoined(false); setSubmitted(false); }}>
           退出
@@ -136,7 +139,7 @@ export default function PlayerPage() {
       {/* Answering phase */}
       {state.phase === 'answering' && (
         <div className="player-answer-area">
-          {answerMode === 'text' ? (
+          {effectiveMode === 'text' ? (
             <>
               <textarea
                 className="text-answer-input"
@@ -215,8 +218,8 @@ export default function PlayerPage() {
           )}
           {state.showAnswer && (
             <div className="answer-reveal">
-              <div className="answer-reveal-label">解説</div>
-              <div className="answer-reveal-text">{question.explanation}</div>
+              <div className="answer-reveal-label">正解</div>
+              <div className="answer-reveal-text">{question.term}</div>
             </div>
           )}
         </div>

@@ -16,6 +16,8 @@ interface Question {
   explanation: string;
   contributor: string;
   answers?: string[];
+  choices?: [string, string, string, string];
+  correctChoiceIndex?: number;
 }
 
 interface Submission {
@@ -59,8 +61,12 @@ const questionsPath = join(__dirname, '../public/questions.json');
 const questions: Question[] = JSON.parse(readFileSync(questionsPath, 'utf-8'));
 
 function generateChoices(qIdx: number): [string, string, string, string] {
+  const q = questions[qIdx];
+  // Use explicitly defined choices if provided
+  if (q.choices) return q.choices;
+
   const total = questions.length;
-  const correctTerm = questions[qIdx].term;
+  const correctTerm = q.term;
 
   // Pick 3 distinct distractors deterministically based on qIdx
   const usedIdxs = new Set([qIdx]);
@@ -95,6 +101,8 @@ function generateChoices(qIdx: number): [string, string, string, string] {
 }
 
 function getCorrectChoiceIndex(qIdx: number): number {
+  const q = questions[qIdx];
+  if (q.correctChoiceIndex !== undefined) return q.correctChoiceIndex;
   return qIdx % 4;
 }
 

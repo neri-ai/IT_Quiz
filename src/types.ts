@@ -5,6 +5,10 @@ export interface Question {
   explanation: string;
   contributor: string;
   answers?: string[];
+  /** 問題に4択の選択肢を直接定義する場合に指定 */
+  choices?: [string, string, string, string];
+  /** choices と併用。正解の選択肢インデックス (0-3) */
+  correctChoiceIndex?: number;
 }
 
 export interface Submission {
