@@ -60,7 +60,7 @@ const questions: Question[] = JSON.parse(readFileSync(questionsPath, 'utf-8'));
 
 function generateChoices(qIdx: number): [string, string, string, string] {
   const total = questions.length;
-  const correctExplanation = questions[qIdx].explanation;
+  const correctTerm = questions[qIdx].term;
 
   // Pick 3 distinct distractors deterministically based on qIdx
   const usedIdxs = new Set([qIdx]);
@@ -81,14 +81,14 @@ function generateChoices(qIdx: number): [string, string, string, string] {
     distractorIdxs.push(idx);
   }
 
-  const distractors = distractorIdxs.map(i => questions[i].explanation);
+  const distractors = distractorIdxs.map(i => questions[i].term);
 
   // Correct answer placed at position (qIdx % 4) so it rotates A→B→C→D
   const correctPos = qIdx % 4;
   const choices: string[] = [];
   let d = 0;
   for (let i = 0; i < 4; i++) {
-    choices.push(i === correctPos ? correctExplanation : distractors[d++]);
+    choices.push(i === correctPos ? correctTerm : distractors[d++]);
   }
 
   return choices as [string, string, string, string];

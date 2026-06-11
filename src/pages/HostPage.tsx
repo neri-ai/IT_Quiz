@@ -52,13 +52,13 @@ export default function HostPage() {
 
       <div className="host-body">
         <main className="host-main">
-          {/* Question card */}
+          {/* Question card: explanation = problem, term = answer */}
           <div className="question-card">
             <div className="category-tag">{question.category}</div>
-            <div className="term-display">{question.term}</div>
+            <div className="question-body-display">{question.explanation}</div>
             {state.showAnswer
-              ? <div className="explanation-display">{question.explanation}</div>
-              : <div className="explanation-hidden">（解説は非表示）</div>
+              ? <div className="answer-term-display">{question.term}</div>
+              : <div className="explanation-hidden">（答えは非表示）</div>
             }
             <div className="contributor-label">出題者: {question.contributor}</div>
             <div className="host-question-actions">
@@ -66,7 +66,7 @@ export default function HostPage() {
                 className={`toggle-answer-btn ${state.showAnswer ? 'hide-mode' : 'show-mode'}`}
                 onClick={() => send({ type: 'toggle-answer' })}
               >
-                {state.showAnswer ? '解説を隠す' : '解説を表示'}
+                {state.showAnswer ? '答えを隠す' : '答えを表示'}
               </button>
               {state.phase === 'answering' && (
                 <button

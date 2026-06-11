@@ -29,11 +29,11 @@ export default function MonitorPage() {
         </span>
       </div>
 
-      {/* Question */}
+      {/* Question: explanation shown as problem, term revealed as answer */}
       <div className="monitor-question">
-        <div className="monitor-term">{question.term}</div>
+        <div className="monitor-question-body">{question.explanation}</div>
         {state.showAnswer && (
-          <div className="monitor-explanation">{question.explanation}</div>
+          <div className="monitor-answer-term">{question.term}</div>
         )}
       </div>
 

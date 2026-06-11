@@ -127,11 +127,10 @@ export default function PlayerPage() {
         </div>
       )}
 
-      {/* Question */}
+      {/* Question: show explanation as the problem */}
       <div className="player-question">
-        <div className="player-q-number">第 {state.currentQuestionIndex + 1} 問</div>
-        <div className="player-term">{question.term}</div>
-        <div className="player-category-tag">{question.category}</div>
+        <div className="player-q-number">第 {state.currentQuestionIndex + 1} 問 — {question.category}</div>
+        <div className="player-question-body">{question.explanation}</div>
       </div>
 
       {/* Answering phase */}
@@ -141,10 +140,10 @@ export default function PlayerPage() {
             <>
               <textarea
                 className="text-answer-input"
-                placeholder="この用語の意味や説明を入力してください..."
+                placeholder="IT用語名を入力してください..."
                 value={textInput}
                 onChange={e => setTextInput(e.target.value)}
-                rows={4}
+                rows={3}
               />
               <div className="player-submit-row">
                 <button
